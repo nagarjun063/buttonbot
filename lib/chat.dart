@@ -1,8 +1,11 @@
 import 'package:bubble/bubble.dart';
+import 'package:async_loader/async_loader.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'globals.dart' as globals;
+import 'dart:convert' as convert;
+import 'package:http/http.dart' as http;
 
 class Homepage extends StatefulWidget {
   Homepage({Key key, this.title}) : super(key: key);
@@ -14,6 +17,8 @@ class Homepage extends StatefulWidget {
 }
 
 class Homepagenew extends State<Homepage> {
+  final GlobalKey<AsyncLoaderState> asyncLoaderState =
+  new GlobalKey<AsyncLoaderState>();
   bool _isDark = false;
   var dark = Color(0xFF263238);
   var light = Color(0xFF2196F3);
@@ -32,7 +37,7 @@ class Homepagenew extends State<Homepage> {
     setState(() {
       _messages.insert(0, welcome1());
       _messages.insert(0, welcome2());
-      heading();
+     
     });
   }
 // creates the button 
@@ -202,32 +207,10 @@ class Homepagenew extends State<Homepage> {
       throw 'Could not launch $url';
     }
   }
+Widget mainarea(){
+ 
+    return Column(children: <Widget>[
 
-  @override
-  Widget build(BuildContext context) {
-    return new Scaffold(
-      resizeToAvoidBottomInset: true,
-      key: _scaffoldKey,
-      appBar: new AppBar(
-        backgroundColor: _isDark ? dark : light,
-        centerTitle: true,
-        automaticallyImplyLeading: false,
-        title: new Text(titlex),
-        actions: <Widget>[
-          Icon(
-            Icons.brightness_4,
-          ),
-          CupertinoSwitch(
-            value: _isDark,
-            onChanged: (v) {
-              setState(() {
-                _isDark = !_isDark;
-              });
-            },
-          ),
-        ],
-      ),
-      body: new Column(children: <Widget>[
         new Flexible(
             child: Align(
           alignment: Alignment.topCenter,
@@ -240,27 +223,154 @@ class Homepagenew extends State<Homepage> {
           ),
         )),
         new Divider(height: 1.0),
-      ]),
-      bottomNavigationBar: new Container(
-        height: 40,
-        child: FlatButton(
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: <Widget>[
-              Icon(
-                Icons.flash_on,
-                color: _isDark ? dark1 : light,
+      ]);
+  }
+
+  Widget getNoConnectionWidget(){
+    return Column(
+      mainAxisSize: MainAxisSize.max,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        SizedBox(
+          height: 60.0,
+          child: new Container(
+            decoration: new BoxDecoration(
+              image: new DecorationImage(
+                image: new AssetImage('assets/no-wifi.png'),
+                fit: BoxFit.contain,
               ),
-              Text(
-                "by  ",
-              ),
-              Image.asset("assets/clogo.png", height: 40, width: 100),
-            ],
+            ),
           ),
-          onPressed: _launchourweb,
+        ),
+
+        new Text("No Internet Connection"),
+        new FlatButton(
+            color: Colors.red,
+            child: new Text("Retry", style: TextStyle(color: Colors.white),),
+            onPressed: () => asyncLoaderState.currentState.reloadState())
+      ],
+    );
+  }
+  
+
+  fetchdata() async {
+     print("authenticating.....");
+// set up POST request arguments
+    String url1 = 'https://botbuilder.freshdigital.io//authentication';
+    Map<String, String> headers1 = {
+      "Content-type": "application/json",
+      "Access-Control-Allow-Origin": "*"
+    };
+// String json = '{"title": "Hello", "body": "body text", "userId": 1}';
+    String json1 =
+        '{  "strategy": "local", "email": "dbadmin@diwks.com", "password": "Admin@!23" }';
+// make POST request
+    http.Response response1 = await http.post(url1, headers: headers1, body: json1);
+// check the status code for the result
+    int statusCode1 = response1.statusCode;
+    print('printing status code');
+    print(statusCode1);
+// this API passes back the id of the new item added to the body
+    var body1 = convert.jsonDecode(response1.body);
+    print('printing body responce');
+    print(body1);
+    globals.authToken = body1['accessToken'];
+    String url =
+        'https://botbuilder.freshdigital.io/botbuilder/60a38c2d069969090559722e';
+    Map<String, String> headers = {
+      "Content-type": "application/json",
+      "Access-Control-Allow-Origin": "*",
+      "Authorization": "Bearer " + globals.authToken,
+    };
+    http.Response response = await http.get(url, headers: headers);
+    var body = convert.jsonDecode(response.body);
+    print('printing body responce');
+    print(body);
+    globals.titlex = body['botname'];
+    globals.light = body['color'];
+    var ttemp = body['content'];
+    final split = ttemp.split(',');
+    globals.a = {for (int i = 0; i < split.length; i++) i: split[i]};
+    //globals.a = body['content'];
+    print(globals.titlex);
+    print(globals.light);
+    print(globals.a.values);
+    final Map<int, String> list = globals.a;
+    for (String vals in list.values) {
+      globals.b.add(vals);
+      print(vals);
+    }
+    print(globals.b);
+    heading();
+   return true;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    var _asyncLoader = new AsyncLoader(
+      key: asyncLoaderState,
+      initState: () async => await fetchdata(),
+      renderLoad: () => Center(child: new CircularProgressIndicator()),
+      renderError: ([error]) => getNoConnectionWidget(),
+      renderSuccess: ({data}) => mainarea(),
+    );
+    return new Scaffold(
+      resizeToAvoidBottomInset: false,
+      backgroundColor: Colors.grey[200],
+      appBar: PreferredSize(
+          preferredSize: Size.fromHeight(40.0), // here the desired height
+          child: AppBar(
+        centerTitle: true,
+        backgroundColor: Color(0xFF16FFBD),
+        title: new Text(
+          "Freshdigital",
+          style: TextStyle(color: Colors.black),
+        ),
+      )),
+      body: _asyncLoader,
+      bottomNavigationBar: new Container(
+        color: Colors.grey[200],
+        height: 40,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Padding(
+                padding: EdgeInsets.only(left: 24.0),
+                child: InkWell(
+                  onTap: () {
+                    print("Live agent");
+                  },
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        WidgetSpan(
+                          child: Icon(Icons.person, size: 20),
+                        ),
+                        TextSpan(
+                            text: "Live agent",
+                            style: TextStyle(
+                              fontSize: 16.0,
+                              color: Colors.black,
+                            )),
+                      ],
+                    ),
+                  ),
+                )),
+            FlatButton(
+                onPressed: _launchourweb,
+                child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+                  Icon(
+                    Icons.flash_on,
+                    color: Color(0xFF16FFBD),
+                  ),
+                  Text(
+                    "by  ",
+                  ),
+                  Image.asset("assets/clogo.png", height: 40, width: 100),
+                ]))
+          ],
         ),
       ),
-      backgroundColor: _isDark ? dark : light1,
     );
   }
 }

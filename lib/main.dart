@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_4/loading.dart';
+import 'package:flutter_application_4/chat.dart';
+
 
 
 void main() => runApp(MyApp());
@@ -16,7 +17,7 @@ class MyAppnew extends State<MyApp> {
     return new MaterialApp(
       title: 'FRESHDIGITAL BOT',
       debugShowCheckedModeBanner: false,
-      home: loading(),
+      home: Homepage(),
       theme: new ThemeData(
         canvasColor: Color.fromRGBO(238, 248, 246, 1.0),
       ),
