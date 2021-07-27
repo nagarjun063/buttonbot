@@ -41,7 +41,7 @@ class Homepagenew extends State<Homepage> {
 // String json = '{"title": "Hello", "body": "body text", "userId": 1}';
    Map<String,dynamic> args =
         //{ "username": "admin", "password": "admin", "faq_clicked": globals.ListFaq, "faq_clicked_collection": globals.ListFaq_Collection,"collection_clicked":globals.ListCollection , "uncatched_tags": globals.ListUnCatched, "missed_counter":"${globals.missedcounter}","rating_faq": globals.Listfaq, "rating": globals.Listrating, "total_ratings": "${globals.total_ratings}", "no_of_ratings": "${globals.no_of_ratings}", "video_counter": "${globals.videocounter}", "faq_counter": "${globals.faqcounter}","collection_counter": "${globals.collectioncounter}","demo_counter":"${globals.democounter}","total_time":"${globals.diff_mn}"};
-{   "username": "admin", "password": "admin","faq_clicked": globals.List_option,  " no_of_clicks":"${globals.option_counter}","agents_clicked": "${globals.live_agent_counter}", "website_clicked": "${globals.website_counter}","total_time":"${globals.diff_mn}"};
+{   "username": "admin", "password": "admin","faq_clicked": globals.List_option,  "no_of_clicks":"${globals.option_counter}","agents_clicked": "${globals.live_agent_counter}", "website_clicked": "${globals.website_counter}","total_time":"${globals.diff_mn}"};
 // make POST request
 var body1= convert.jsonEncode(args);
     http.Response response = await http.post(url, headers: headers, body: body1);
@@ -68,7 +68,7 @@ analyticspatch() async {
 // String json = '{"title": "Hello", "body": "body text", "userId": 1}';
      Map<String,dynamic> args =
       //  { "username": "admin", "password": "admin", "faq_clicked": globals.ListFaq, "faq_clicked_collection": globals.ListFaq_Collection,"collection_clicked":globals.ListCollection , "uncatched_tags": globals.ListUnCatched, "missed_counter":"${globals.missedcounter}","rating_faq": globals.Listfaq, "rating": globals.Listrating, "total_ratings": "${globals.total_ratings}", "no_of_ratings": "${globals.no_of_ratings}", "video_counter": "${globals.videocounter}", "faq_counter": "${globals.faqcounter}","collection_counter": "${globals.collectioncounter}","demo_counter":"${globals.democounter}","total_time":"${globals.diff_mn}"};
-{  "username": "admin", "password": "admin","faq_clicked": globals.List_option,  " no_of_clicks":"${globals.option_counter}","agents_clicked": "${globals.live_agent_counter}", "website_clicked": "${globals.website_counter}","total_time":"${globals.diff_mn}"};
+{  "username": "admin", "password": "admin","faq_clicked": globals.List_option,  "no_of_clicks":"${globals.option_counter}","agents_clicked": "${globals.live_agent_counter}", "website_clicked": "${globals.website_counter}","total_time":"${globals.diff_mn}"};
 // make POST request
 var body1= convert.jsonEncode(args);
     http.Response response = await http.patch(url, headers: headers, body: body1);
@@ -89,12 +89,8 @@ var body1= convert.jsonEncode(args);
   void initState() {
      globals.intime = DateTime.now();
     print('In-time :'+globals.intime.toString());
-     globals.outtime=DateTime.now();
-                       print('out time :'+globals.outtime.toString());
-                    globals.diff_mn=globals.outtime.difference(globals.intime). inSeconds;
-                    print('Time diff :'+globals.diff_mn.toString()+'minutes');
+   
 
-    analytics();
     super.initState();
 
     setState(() {
@@ -382,6 +378,12 @@ Widget mainarea(){
       print(vals);
     }
     print(globals.b);
+      globals.outtime=DateTime.now();
+                       print('out time :'+globals.outtime.toString());
+                    globals.diff_mn=globals.outtime.difference(globals.intime). inSeconds;
+                    print('Time diff :'+globals.diff_mn.toString()+'minutes');
+
+    analytics();
     heading();
    return true;
   }
